@@ -1,10 +1,10 @@
 ## Unsquash
 
-* To understand the file structure of the system that we need to Hack, we are going to open given BornToSec ISO file.
-
-* In casper folder we can see filesystem.squashfs which tells us that system is compessed. It also means that we can decompress system using linux `unsquashfs` function.
+* To understand the file structure of the system that we need to Hack, we are going to open given BornToSec ISO file.<br/>
+![files_iso](screens/files_iso.png)
+* In casper folder we can see filesystem.squashfs which tells us that system is compessed. It also means that we can decompress system using linux `unsquashfs` function.<br/>
+![sqaushed_file](screens/sqaushed_file.png)
 You should have access as a laurie via ssh and use /tmp folder to unsqash the system file in /cdrom/casper/filesystem.squashfs
-
 
 -----------------------------------------------------------------------------------------
 
