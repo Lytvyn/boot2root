@@ -59,36 +59,44 @@ We need to understand what exactly we are going to "hack".
    * looks like an ssh or ftp access <br/>
    ![lmezard_password](screens/lmezard_password.jpg)<br/>
    
-### 9.     the ssh try
-       ftp
-       9.1 we can see two files, get them
-       9.2 readme contains some hint for us
-       9.3 fun is archive, decompressing it
-       it contains a lot of .pcap files
-       9.4 using cat command for fun file we can see simple c programm that outputs 12 letters and says it's the password, there are also function calls get_me#() from 1 to 12 each returns letter
-       9.5 we found out that archive 8 files return the values from the password
-       lets sort them according to numbers inside and we will get the order
-       APM1E I
-       ZPY1Q h
-       ECOW1 e
-       7DT5Q a
-       T7VV0 r
-       J5LKW t
-       T44J5 p
-       BJPCP wnage
-       now we see that the password "Iheartpwnage" looks like case sensetive
-       9.6 In fun archive we also saw hint about SHA256, lets encode our password to SHA256 "330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4"
-       9.7 and try to ssh on the server with "laurie@192.168.12.128" and password
+### 9. trying to ge access
+   * ssh (unsucessfull)<br/>
+   ![ssh_try](screens/ssh_try.jpg)<br/>
+   * ftp (sucessfull)<br/>
+   * we can see two files, get them<br/>
+   ![ftp_try](screens/ftp_try.jpg)<br/>
+   * readme contains some hint for us<br/>
+   ![ftp_readme](screens/ftp_readme.jpg)<br/>
+   * fun is archive, after decompression it contains a lot of `.pcap` files<br/>
+   ![fun_file_type](screens/fun_file_type.jpg)<br/>
+   ![extracted_fun](screens/extracted_fun.jpg)<br/>
+   * using cat command for fun file we can see simple c programm that outputs 12 letters and says it's the password, there are also function calls get_me#() from 1 to 12 each returns letter</br>
+   ![cat_fun_hint](screens/cat_fun_hint.jpg)<br/>
+   * we found out that archive 8 files return the values from the password<br/>
+   ![grep_return_pass_vals](screens/grep_return_pass_vals.jpg)<br/>
+     lets sort them according to numbers inside and we will get the order:<br/>
+     ![files_to_order](screens/files_to_order.jpg)<br/>
+       ***APM1E** I<br/>
+       **ZPY1Q** h<br/>
+       **ECOW1** e<br/>
+       **7DT5Q** a<br/>
+       **T7VV0** r<br/>
+       **J5LKW** t<br/>
+       **T44J5** p<br/>
+       **BJPCP** wnage<br/>*
+     now we see that the password "Iheartpwnage" looks like case sensetive
+   * In fun archive we also saw hint about SHA256, lets encode our password to SHA256    `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
+   * and try to ssh on the server with `laurie@192.168.12.128` and password
 ### 10. We are successfully ssh with laurie user
-    10.1 we see the README file that gives us a hint how to get password for the ssh access with user "thor"
-    10.2 disasemple bomb file and we see 6 functions
-         Phase_1 pushes value to the stack 0x80497c0, which is "Public speaking is very easy." Also hint says that password has no spaces and case sensetive, modifing string and getting first part of out password: `Publicspeakingisveryeasy.`
-         Phase_2 function 'read_six_numbers' and the string '%d %d %d %d %d %d' at the address 0x08049b1b. We assume that first number is 1, the others are multiples by the last number in the sequense so we have to do it 6 times according to the string. 1*1 2*1 2*3 6*4 24*5 120*6 so the next part of our password is: `12624120720`
-         Phase_3 contains the string "%d %c %d" before the call of sscanf function, hint has given us that the character passed to the function should be `b`, so it gives us the solution of "1 b 214", next part of the password is "1b214"
-         Phase_4 contains the string "%d" before the call of sscanf function, after the call eax must be equal to 0x37 which is 55, so the number passed to the function we get by inversing the assembly code "9"
-         Phase_5 contains the tring "giants" at the address 0x804980b. we also see string isrveawhobpnutfg\260\001 at the address 0x804b220, and a programm gives us a hint to exchange the letters from giants to once from that string and we get `opekmq`
-         Phase_6 the programm read_six_numbers and a hint gives us number 4, we also see 6 nodes {253} -> {725} -> {301} -> {997} -> {212} -> {432}, 4-th of the is the biggest, lets assume that we need to order them in descending order then our password part will be: `426315` though according to the forum we must swap 3 and 1 in last part to get the access
-        The password in the end: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+* we see the README file that gives us a hint how to get password for the ssh access with user "thor"
+* disasemple bomb file and we see 6 functions
+  * **Phase_1** pushes value to the stack 0x80497c0, which is "Public speaking is very easy." Also hint says that password has no spaces and case sensetive, modifing string and getting first part of out password: `Publicspeakingisveryeasy.`
+  * **Phase_2** function 'read_six_numbers' and the string '%d %d %d %d %d %d' at the address 0x08049b1b. We assume that first number is 1, the others are multiples by the last number in the sequense so we have to do it 6 times according to the string. 1*1 2*1 2*3 6*4 24*5 120*6 so the next part of our password is: `12624120720`
+  * **Phase_3** contains the string "%d %c %d" before the call of sscanf function, hint has given us that the character passed to the function should be `b`, so it gives us the solution of "1 b 214", next part of the password is "1b214"
+  * **Phase_4** contains the string "%d" before the call of sscanf function, after the call eax must be equal to 0x37 which is 55, so the number passed to the function we get by inversing the assembly code "9"
+  * **Phase_5** contains the tring "giants" at the address 0x804980b. we also see string isrveawhobpnutfg\260\001 at the address 0x804b220, and a programm gives us a hint to exchange the letters from giants to once from that string and we get `opekmq`
+  * **Phase_6** the programm read_six_numbers and a hint gives us number 4, we also see 6 nodes {253} -> {725} -> {301} -> {997} -> {212} -> {432}, 4-th of the is the biggest, lets assume that we need to order them in descending order then our password part will be: `426315` though according to the forum we must swap 3 and 1 in last part to get the access<br/> <br/>
+The password in the end: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
 
 ### 11. ssh thor@192.168.12.128 
     We see the README and turtle files
