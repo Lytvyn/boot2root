@@ -2,37 +2,46 @@ When we've set up our .iso file we will see this:
 
 We need to understand what exactly we are going to "hack".
 1. Using ifconfig to see the active interfaces, virtual boxes
-   `ifconfig`:
-
-2. Using nmap to see which ports are open for the VM and what exact ip address it located at
-   `nmap 192.168.12.1-255`:
-   
+   `ifconfig`:<br/>
+    ![ifconfig](screens/1.jpg)
+    
+2. Using nmap to see which ports are open for the VM and what exact ip address it located at 
+   `nmap 192.168.12.1-255`:<br/>
+   ![nmap](screens/nmap.jpg)
+      
    We see that port 80 accessible through the browser
 
-3. Put this 192.168.12.128 into the browser address field and you will get a simple page:
-
+3. Put this 192.168.12.128 into the browser address field and you will get a simple page:<br/>
+      ![web_page](screens/web_page.jpg)
+      
 4. Now we can use DIRB - scaner of the web content which can find possibly hidden information of the page using it's library
-   4.1 `./dirb http://192.168.12.128 wordlist/common.txt -w`
-   output gives us a possibility to see the "forum" folder and some other which are not really relevant:
-   http://192.168.12.128/forum not found in browser
-
-   4.2 lets try ssl version of the site
    `./dirb http://192.168.12.128 wordlist/common.txt -w`
-   and we get much more info now, but there are few main folders:
-   https://192.168.12.128/forum
-   https://192.168.12.128/webmail
-   https://192.168.12.128/phpmyadmin
+   output gives us a possibility to see the "forum" folder and some other which are not really relevant:<br/>
+   ![dirb](screens/dirb.jpg)
+   Though http://192.168.12.128/forum not found in browser
+
+   * lets try ssl version of the site
+     `./dirb http://192.168.12.128 wordlist/common.txt -w`
+     and we get much more info now, but there are few main folders:<br/>
+     ![dirb_https](screens/dirb_https.jpg)<br/>
+      
+     ```https://192.168.12.128/forum```<br/>
+     ```https://192.168.12.128/webmail```<br/>
+     ```https://192.168.12.128/phpmyadmin```<br/>
 
 5. First checking out the "forum" folder, proceeding in the browser to https://192.168.12.128/forum
-   5.1 We see few topics, checking first one with login problem:
-       looks like the log outpit of log in attempts
-       one line contains some symbols that are looking like a password
-       assuming that it was log in try we can think that it's user password, probably the one who created the topic
-   5.2 Log in functionality is present on a forum, as well as users tab:
-       there are not so much users, so we going to try to login with credentials of them and this password that we have:
+   5.1 We see few topics, checking first one with login problem, looks like the log outpit of log in attempts, one line contains some symbols that are looking like a password:<br/>
        
-       the try to login with lmezard and password that we've found was successfull
-       Keep in mind that we have access to the "webmail" page and we see the email of the user
+   ![forum_log_pass](screens/forum_log_pass.jpg)
+   assuming that it was log in try we can think that it's user password, probably the one who created the topic
+   
+   5.2 Log in functionality is present on a forum, as well as users tab:<br/>
+   ![users](screens/forum_users.jpg)
+   
+   there are not so much users, so we going to try to login with credentials of them and this password that we have:
+       
+   the try to login with lmezard and password that we've found was successfull
+   Keep in mind that we have access to the "webmail" page and we see the email of the user
        
 6. Going to check the webmail page
    6.1 trying if user email that we found and password that we used to login are matching, seems it works
