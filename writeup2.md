@@ -4,8 +4,8 @@
 ![files_iso](screens/files_iso.png)<br/>
 ![sqaushed_file](screens/sqaushed_file.png)<br/>
 * In casper folder we can see filesystem.squashfs which tells us that system is compessed. It also means that we can decompress system using linux `unsquashfs` function.<br/>
+You should have access as a laurie via ssh and use /tmp folder to unsqash the system file in /cdrom/casper/filesystem.squashfs<br/>
 ![unsquash](screens/unsquash.jpg)<br/>
-You should have access as a laurie via ssh and use /tmp folder to unsqash the system file in /cdrom/casper/filesystem.squashfs
 
 -----------------------------------------------------------------------------------------
 
